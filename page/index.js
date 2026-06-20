@@ -292,8 +292,8 @@ Page(
 
       // 頂部底色 + 時鐘 + 狀態
       try {
-        const topbg = createWidget(widget.FILL_RECT, { x: 0, y: 0, w: SCREEN, h: 76, radius: 0, color: 0xffffff, alpha: 235 });
-        try { topbg.setAlpha(235); } catch (e) {}
+        const topbg = createWidget(widget.FILL_RECT, { x: 0, y: 0, w: SCREEN, h: 76, radius: 0, color: 0xffffff, alpha: 180 });
+        try { topbg.setAlpha(180); } catch (e) {}
         this.scene.push(topbg);
       } catch (e) {}
       let clock = '';
@@ -332,8 +332,8 @@ Page(
       if (niceDist > 0) {
         const scaleLabel = niceDist >= 1000 ? `${niceDist / 1000} km` : `${niceDist} m`;
         try {
-          const scbg = createWidget(widget.FILL_RECT, { x: CENTER - 70, y: 278, w: 140, h: 46, radius: 10, color: 0xffffff, alpha: 235 });
-          try { scbg.setAlpha(235); } catch (e) {}
+          const scbg = createWidget(widget.FILL_RECT, { x: CENTER - 70, y: 278, w: 140, h: 46, radius: 10, color: 0xffffff, alpha: 180 });
+          try { scbg.setAlpha(180); } catch (e) {}
           this.scene.push(scbg);
         } catch (e) {}
         this.scene.push(createWidget(widget.TEXT, {
