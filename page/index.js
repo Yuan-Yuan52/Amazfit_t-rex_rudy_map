@@ -10,6 +10,7 @@ import {
   onKey, KEY_SELECT, KEY_SHORTCUT, KEY_UP, KEY_DOWN, KEY_EVENT_CLICK, onGesture,
 } from '@zos/interaction';
 import { statSync } from '@zos/fs';
+import { setScrollLock } from '@zos/page';
 import { BasePage } from '@zeppos/zml/base-page';
 import {
   lonToTileX, latToTileY, tileXToLon, tileYToLat, TILE_SIZE,
@@ -30,6 +31,9 @@ const tilePath = (z, x, y) => `data://download/t_${z}_${x}_${y}.png`;
 Page(
   BasePage({
     build() {
+      // 鎖住頁面自由捲動，否則上下拖曳時整個畫面(含 UI)會跟著被頁面推走
+      try { setScrollLock({ lock: true }); } catch (e) {}
+
       this.z = 17;
       this.gpsLat = null;
       this.gpsLon = null;
