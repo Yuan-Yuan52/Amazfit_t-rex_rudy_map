@@ -254,7 +254,7 @@ Page(
         for (let ty = cy - 2; ty <= cy + 2; ty++) {
           const sx = Math.round(CENTER - (fx - tx) * TILE_SIZE);
           const sy = Math.round(CENTER - (fy - ty) * TILE_SIZE);
-          if (sx >= SCREEN || sy >= SCREEN || sx + TILE_SIZE <= 0 || sy + TILE_SIZE <= 0) continue;
+          // 注意：不跳過畫面外的圖磚——它們要先建好，拖曳才有得滑、不會是黑的
           if (this.tileReady(z, tx, ty)) {
             const img = createWidget(widget.IMG, {
               x: sx, y: sy, w: TILE_SIZE, h: TILE_SIZE, src: tilePath(z, tx, ty),
