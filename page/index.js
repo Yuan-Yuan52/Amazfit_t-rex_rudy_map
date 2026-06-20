@@ -7,10 +7,12 @@ import { createWidget, deleteWidget, widget, align, prop, event } from '@zos/ui'
 import { Geolocation, Time } from '@zos/sensor';
 import { queryPermission, requestPermission } from '@zos/app';
 import {
-  onKey, KEY_SELECT, KEY_SHORTCUT, KEY_UP, KEY_DOWN, KEY_EVENT_CLICK, onGesture,
+  onKey, KEY_SELECT, KEY_SHORTCUT, KEY_UP, KEY_DOWN, KEY_EVENT_CLICK, KEY_EVENT_LONG_PRESS, onGesture,
 } from '@zos/interaction';
 import { statSync } from '@zos/fs';
 import { setScrollLock } from '@zos/page';
+import { push } from '@zos/router';
+import { localStorage } from '@zos/storage';
 import { BasePage } from '@zeppos/zml/base-page';
 import {
   lonToTileX, latToTileY, tileXToLon, tileYToLat, TILE_SIZE,
@@ -33,6 +35,11 @@ Page(
     build() {
       // 鎖住頁面自由捲動，否則上下拖曳時整個畫面(含 UI)會跟著被頁面推走
       try { setScrollLock({ lock: true }); } catch (e) {}
+
+      // 更新頻率設定（畫面多久跟著 GPS 重畫一次；省電用）
+      this.gpsInterval = this.loadGpsInterval();
+      this._lastGpsRender = 0;
+      this._grLat = 0; this._grLon = 0; this._rendered = false;
 
       this.z = 17;
       this.gpsLat = null;
@@ -153,6 +160,18 @@ Page(
       } catch (e) { try { this.beginGeo(); } catch (e2) {} }
     },
 
+    loadGpsInterval() {
+      try {
+        const v = parseInt(localStorage.getItem('gpsInterval', '1000'), 10);
+        return v && v > 0 ? v : 1000;
+      } catch (e) { return 1000; }
+    },
+
+    // 從設定頁回來時重新套用更新頻率
+    onResume() {
+      this.gpsInterval = this.loadGpsInterval();
+    },
+
     beginGeo() {
       this.geo = new Geolocation();
       this.geo.start();
@@ -162,6 +181,16 @@ Page(
         const lat = this.geo.getLatitude();
         const lon = this.geo.getLongitude();
         this.gpsLat = lat; this.gpsLon = lon; this.hasFix = true;
+
+        // 時間節流：依「更新頻率」設定，太頻繁就不重畫
+        const now = Date.now();
+        if (now - this._lastGpsRender < this.gpsInterval) return;
+        // 移動節流：移動 < 約2公尺 不重畫（站著不動就不耗電重畫）
+        const moved = Math.abs(lat - this._grLat) + Math.abs(lon - this._grLon);
+        if (moved < 0.00002 && this._rendered) return;
+
+        this._lastGpsRender = now;
+        this._grLat = lat; this._grLon = lon; this._rendered = true;
         if (this.follow) { this.viewLat = lat; this.viewLon = lon; }
         this.render();
       });
@@ -172,6 +201,11 @@ Page(
       try {
         onKey({
           callback: (key, keyEvent) => {
+            // 長按 SELECT/捷徑鍵 → 進設定頁
+            if (keyEvent === KEY_EVENT_LONG_PRESS && (key === KEY_SELECT || key === KEY_SHORTCUT)) {
+              try { push({ url: 'page/settings' }); } catch (e) {}
+              return true;
+            }
             if (keyEvent !== KEY_EVENT_CLICK) return false;
             if (key === KEY_UP) { this.zoomBy(1); return true; }
             if (key === KEY_DOWN) { this.zoomBy(-1); return true; }
