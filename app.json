@@ -1,0 +1,64 @@
+{
+  "configVersion": "v3",
+  "app": {
+    "appId": 23483,
+    "appName": "Rudy map",
+    "appType": "app",
+    "version": {
+      "code": 1,
+      "name": "1.0.0"
+    },
+    "icon": "icon.png",
+    "vender": "zepp",
+    "description": "自訂離線地圖：GPS 定位 + 自帶圖層"
+  },
+  "permissions": [
+    "device:os.geolocation",
+    "device:os.ble",
+    "data:os.device.info"
+  ],
+  "runtime": {
+    "apiVersion": {
+      "compatible": "4.0",
+      "target": "4.0",
+      "minVersion": "4.0"
+    }
+  },
+  "targets": {
+    "default": {
+      "module": {
+        "page": {
+          "pages": [
+            "page/index"
+          ]
+        },
+        "app-side": {
+          "path": "app-side/index"
+        },
+        "setting": {
+          "path": "setting/index"
+        }
+      },
+      "platforms": [
+        {
+          "name": "Amazfit T-Rex 3",
+          "deviceSource": 8716545
+        },
+        {
+          "name": "Amazfit T-Rex 3",
+          "deviceSource": 8716547
+        },
+        {
+          "name": "Amazfit T-Rex 3",
+          "deviceSource": 8716544
+        }
+      ]
+    }
+  },
+  "i18n": {
+    "en-US": {
+      "appName": "Rudy map"
+    }
+  },
+  "defaultLanguage": "en-US"
+}
