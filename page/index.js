@@ -249,12 +249,18 @@ Page(
       const fy = latToTileY(this.viewLat, z);
       const cx = Math.floor(fx), cy = Math.floor(fy);
 
-      // 5x5 圖磚：有的畫圖、沒的畫占位灰底 + 請手機下載（拖曳空間較大）
+      // 全螢幕灰底（最底層）：拖曳露出未載入區時是灰色而非黑色
+      try {
+        this.scene.push(createWidget(widget.FILL_RECT, { x: 0, y: 0, w: SCREEN, h: SCREEN, color: 0x555555 }));
+      } catch (e) {}
+
+      // 5x5 圖磚（只建畫面內/稍微出界的，避免負座標太多把版面搞亂）
       for (let tx = cx - 2; tx <= cx + 2; tx++) {
         for (let ty = cy - 2; ty <= cy + 2; ty++) {
           const sx = Math.round(CENTER - (fx - tx) * TILE_SIZE);
           const sy = Math.round(CENTER - (fy - ty) * TILE_SIZE);
-          // 注意：不跳過畫面外的圖磚——它們要先建好，拖曳才有得滑、不會是黑的
+          // 完全在畫面外(且超過一塊邊界)就不建，避免大量負座標 widget
+          if (sx >= SCREEN || sy >= SCREEN || sx + TILE_SIZE <= 0 || sy + TILE_SIZE <= 0) continue;
           if (this.tileReady(z, tx, ty)) {
             const img = createWidget(widget.IMG, {
               x: sx, y: sy, w: TILE_SIZE, h: TILE_SIZE, src: tilePath(z, tx, ty),
