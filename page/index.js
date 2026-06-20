@@ -184,6 +184,7 @@ Page(
     },
 
     zoomBy(d) {
+      this._dragging = false; // 保險：清掉可能卡住的拖曳狀態
       const nz = this.z + d;
       if (nz < MIN_Z || nz > MAX_Z) return;
       this.z = nz;
@@ -191,6 +192,7 @@ Page(
     },
 
     recenter() {
+      this._dragging = false; // 保險：清掉拖曳狀態，否則 GPS 會一直被擋住不追蹤
       this.follow = true;
       if (this.hasFix) { this.viewLat = this.gpsLat; this.viewLon = this.gpsLon; }
       else { this.viewLat = DEFAULT.lat; this.viewLon = DEFAULT.lon; }
@@ -247,9 +249,9 @@ Page(
       const fy = latToTileY(this.viewLat, z);
       const cx = Math.floor(fx), cy = Math.floor(fy);
 
-      // 3x3 圖磚：有的畫圖、沒的畫占位灰底 + 請手機下載
-      for (let tx = cx - 1; tx <= cx + 1; tx++) {
-        for (let ty = cy - 1; ty <= cy + 1; ty++) {
+      // 5x5 圖磚：有的畫圖、沒的畫占位灰底 + 請手機下載（拖曳空間較大）
+      for (let tx = cx - 2; tx <= cx + 2; tx++) {
+        for (let ty = cy - 2; ty <= cy + 2; ty++) {
           const sx = Math.round(CENTER - (fx - tx) * TILE_SIZE);
           const sy = Math.round(CENTER - (fy - ty) * TILE_SIZE);
           if (sx >= SCREEN || sy >= SCREEN || sx + TILE_SIZE <= 0 || sy + TILE_SIZE <= 0) continue;
@@ -290,8 +292,8 @@ Page(
 
       // 頂部底色 + 時鐘 + 狀態
       try {
-        const topbg = createWidget(widget.FILL_RECT, { x: 70, y: 2, w: 340, h: 74, radius: 16, color: 0xffffff, alpha: 180 });
-        try { topbg.setAlpha(180); } catch (e) {}
+        const topbg = createWidget(widget.FILL_RECT, { x: 70, y: 2, w: 340, h: 74, radius: 16, color: 0xffffff, alpha: 235 });
+        try { topbg.setAlpha(235); } catch (e) {}
         this.scene.push(topbg);
       } catch (e) {}
       let clock = '';
@@ -330,8 +332,8 @@ Page(
       if (niceDist > 0) {
         const scaleLabel = niceDist >= 1000 ? `${niceDist / 1000} km` : `${niceDist} m`;
         try {
-          const scbg = createWidget(widget.FILL_RECT, { x: CENTER - 70, y: 278, w: 140, h: 46, radius: 10, color: 0xffffff, alpha: 180 });
-          try { scbg.setAlpha(180); } catch (e) {}
+          const scbg = createWidget(widget.FILL_RECT, { x: CENTER - 70, y: 278, w: 140, h: 46, radius: 10, color: 0xffffff, alpha: 235 });
+          try { scbg.setAlpha(235); } catch (e) {}
           this.scene.push(scbg);
         } catch (e) {}
         this.scene.push(createWidget(widget.TEXT, {
