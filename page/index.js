@@ -292,7 +292,7 @@ Page(
 
       // 頂部底色 + 時鐘 + 狀態
       try {
-        const topbg = createWidget(widget.FILL_RECT, { x: 70, y: 2, w: 340, h: 74, radius: 16, color: 0xffffff, alpha: 235 });
+        const topbg = createWidget(widget.FILL_RECT, { x: 0, y: 0, w: SCREEN, h: 76, radius: 0, color: 0xffffff, alpha: 235 });
         try { topbg.setAlpha(235); } catch (e) {}
         this.scene.push(topbg);
       } catch (e) {}
