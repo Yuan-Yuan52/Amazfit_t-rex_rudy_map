@@ -32,6 +32,17 @@
             "page/index"
           ]
         },
+        "data-widget": {
+          "widgets": [
+            {
+              "path": "data-widget/common/index",
+              "name": "Rudy map",
+              "icon": "icon.png",
+              "window": { "isPinned": 1 },
+              "runtime": { "ability": [ { "type": 1, "subType": [] } ] }
+            }
+          ]
+        },
         "app-side": {
           "path": "app-side/index"
         },

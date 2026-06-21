@@ -238,10 +238,24 @@ Page(
     },
     setActive(id) {
       this.activeId = id;
-      try { localStorage.setItem('activeTrack', id || ''); } catch (e) {}
+      this.saveActiveId();
       this.render();
     },
-    loadActiveId() { try { return localStorage.getItem('activeTrack', '') || ''; } catch (e) { return ''; } },
+    // 選定的航跡存成檔案（data:// 檔案實測會留著，比 localStorage 可靠；localStorage 重裝/有時會被清掉）
+    saveActiveId() {
+      const id = this.activeId || '';
+      try { writeFileSync({ path: 'active.txt', data: id, options: { encoding: 'utf8' } }); } catch (e) {}
+      try { localStorage.setItem('activeTrack', id); } catch (e) {} // 雙保險
+    },
+    loadActiveId() {
+      try {
+        let s = null;
+        try { s = readFileSync({ path: 'active.txt', options: { encoding: 'utf8' } }); } catch (e) {}
+        if (!s) { try { s = readFileSync({ path: 'data://active.txt', options: { encoding: 'utf8' } }); } catch (e) {} }
+        if (s && typeof s === 'string' && s.trim()) return s.trim();
+      } catch (e) {}
+      try { return localStorage.getItem('activeTrack', '') || ''; } catch (e) { return ''; }
+    },
     // 匯入航跡存/讀（localStorage，pts 以精簡字串保存）
     _ptsToStr(pts) { let s = ''; for (let i = 0; i < pts.length; i++) s += (i ? ';' : '') + pts[i][0] + ',' + pts[i][1]; return s; },
     // 匯入航跡存成檔案（localStorage 單值有大小上限，航跡座標會超過 → 存不進、重開就不見）
@@ -281,7 +295,7 @@ Page(
       for (let i = 0; i < this.tracks.length; i++) if (this.tracks[i].id !== id) nt.push(this.tracks[i]);
       this.tracks = nt;
       this._keySetsVer++;
-      if (this.activeId === id) { this.activeId = this.tracks[0] ? this.tracks[0].id : ''; try { localStorage.setItem('activeTrack', this.activeId); } catch (e) {} }
+      if (this.activeId === id) { this.activeId = this.tracks[0] ? this.tracks[0].id : ''; this.saveActiveId(); }
       this.saveImportedTracks();
       this._pendingTrackDel = null;
       this.render();
@@ -747,7 +761,7 @@ Page(
                 this.activeId = id; // 匯入後自動選定它
                 this._keySetsVer++;
                 this.saveImportedTracks();
-                try { localStorage.setItem('activeTrack', id); } catch (e) {}
+                this.saveActiveId();
                 this._impStatus = `成功：${pts.length} 點，已選定`;
               } else {
                 this._impStatus = '解析到 0 點';
